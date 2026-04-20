@@ -351,10 +351,29 @@ S33_10,      DEC 10
 ///
 SubClearDisplay, HEX 0
 
-/ The logic
+/ Write 0 (black) to every pixel in the display (0x0F00 to 0x0FFF)
+Load S34_DispStart
+Store S34_Ptr
 
-JumpI SubClearDisplay 
-/ Add local variables of SubClearDisplay here (if any)
+S34_Loop,
+Load S34_DispEnd
+Subt S34_Ptr
+Skipcond 800          / if DispEnd - Ptr > 0, skip exit and keep filling
+Jump S34_Done
+Load ZERO             / black pixel
+StoreI S34_Ptr        / write to address stored in S34_Ptr
+Load S34_Ptr
+Add ONE
+Store S34_Ptr
+Jump S34_Loop
+
+S34_Done,
+JumpI SubClearDisplay
+
+/ Local variables for Task 3.4
+S34_Ptr,       HEX 0
+S34_DispStart, HEX 0F00   / display start address
+S34_DispEnd,   HEX 1000   / one past the last display address (0x0FFF + 1)
 
 ///
 /// Implement your subroutine SubPaintChar here. (Task 3.5)
