@@ -381,12 +381,72 @@ S34_DispEnd,   HEX 1000   / one past the last display address (0x0FFF + 1)
 / Parameters of SubPaintChar
 PaintCharCharacter, HEX 0  
 PaintCharDisplay, HEX 0  
-SubPaintChar, HEX 0 
+SubPaintChar, HEX 0
 
-/ The logic
+/ Paint a digit character (3 wide x 5 tall = 15 pixels) onto the display
+/ PaintCharCharacter = address of first font pixel
+/ PaintCharDisplay   = top-left display address to paint at
 
-JumpI SubPaintChar 
-/ Add local variables of SubPaintChar here (if any)
+Load PaintCharCharacter
+Store S35_FontPtr
+Load PaintCharDisplay
+Store S35_DispPtr
+Load ZERO
+Store S35_Count
+Store S35_Col
+
+S35_Loop,
+/ Stop when all 15 pixels have been copied
+Load S35_Total
+Subt S35_Count
+Skipcond 800          / if pixels remaining > 0, skip exit and keep going
+Jump S35_Done
+
+/ Copy one pixel from font to display
+LoadI S35_FontPtr
+StoreI S35_DispPtr
+
+/ Advance font pointer by 1
+Load S35_FontPtr
+Add ONE
+Store S35_FontPtr
+
+/ Advance display pointer by 1
+Load S35_DispPtr
+Add ONE
+Store S35_DispPtr
+
+/ Track column position - after 3 pixels we finished one row
+Load S35_Col
+Add ONE
+Store S35_Col         / AC still holds new col value after Store
+Subt S35_Width        / AC = newcol - 3
+Skipcond 400          / skip if newcol == 3 (just finished a row)
+Jump S35_Next
+/ End of row: reset col and skip display pointer to the next row
+Load ZERO
+Store S35_Col
+Load S35_DispPtr
+Add S35_RowSkip       / 16 - 3 = 13 pixels to reach start of next display row
+Store S35_DispPtr
+
+S35_Next,
+Load S35_Count
+Add ONE
+Store S35_Count
+Jump S35_Loop
+
+S35_Done,
+JumpI SubPaintChar
+
+/ Local variables for Task 3.5
+S35_FontPtr, HEX 0
+S35_DispPtr, HEX 0
+S35_Count,   HEX 0
+S35_Col,     HEX 0
+S35_Total,   DEC 15   / pixels per digit character (3 wide x 5 tall)
+S35_Width,   DEC 3    / character width in pixels
+S35_RowSkip, DEC 13   / display row skip = DisplayWidth(16) - CharWidth(3)
 
 ///
 /// Implement your subroutine SubPrintToGraphicDisplay here. (Task 3.6)
