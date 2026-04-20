@@ -451,12 +451,156 @@ S35_RowSkip, DEC 13   / display row skip = DisplayWidth(16) - CharWidth(3)
 ///
 /// Implement your subroutine SubPrintToGraphicDisplay here. (Task 3.6)
 ///
-SubPrintCalResultToDisplay, HEX 0 
+SubPrintCalResultToDisplay, HEX 0
 
-/ The logic
+/ Paint CalResult onto the bitmap display digit by digit
+Load CalResult
+Store S36_Rem
+Load ZERO
+Store S36_Started
 
-JumpI SubPrintCalResultToDisplay 
-/ Add local variables of SubPrintCalResultToDisplay here (if any)
+/ Start at top-left of display
+Load S36_DispStart
+Store S36_DispPtr
+
+/ Handle negative result
+Load S36_Rem
+Skipcond 000           / skip if negative
+Jump S36_Hunds
+/ Negative: paint '-' character then negate
+Load DigitFontAddr
+Add S36_MinusOff       / '-' is at index 10, offset = 10 * 15 = 150
+Store PaintCharCharacter
+Load S36_DispPtr
+Store PaintCharDisplay
+JnS SubPaintChar
+Load S36_DispPtr
+Add S36_Step
+Store S36_DispPtr
+Load ZERO
+Subt S36_Rem
+Store S36_Rem
+
+/ --- Hundreds digit ---
+/ Advance font pointer by NEXTDIGIT once per 100 subtracted from remainder
+S36_Hunds,
+Load DigitFontAddr
+Store S36_FontPtr
+Load ZERO
+Store S36_Dig
+S36_H,
+Load S36_Rem
+Subt S36_100
+Skipcond 000           / if < 0, done extracting hundreds
+Jump S36_HNext
+Jump S36_HPrint
+S36_HNext,
+Store S36_Rem
+Load S36_FontPtr
+Add NEXTDIGIT
+Store S36_FontPtr
+Load S36_Dig
+Add ONE
+Store S36_Dig
+Jump S36_H
+S36_HPrint,
+Load S36_Dig
+Skipcond 400           / skip if digit == 0 (suppress leading zero)
+Jump S36_HPaint
+Load S36_Started
+Skipcond 400           / skip if not started yet
+Jump S36_HPaint
+Jump S36_Tens
+S36_HPaint,
+Load S36_FontPtr
+Store PaintCharCharacter
+Load S36_DispPtr
+Store PaintCharDisplay
+JnS SubPaintChar
+Load S36_DispPtr
+Add S36_Step
+Store S36_DispPtr
+Load ONE
+Store S36_Started
+
+/ --- Tens digit ---
+S36_Tens,
+Load DigitFontAddr
+Store S36_FontPtr
+Load ZERO
+Store S36_Dig
+S36_T,
+Load S36_Rem
+Subt S36_10
+Skipcond 000
+Jump S36_TNext
+Jump S36_TPrint
+S36_TNext,
+Store S36_Rem
+Load S36_FontPtr
+Add NEXTDIGIT
+Store S36_FontPtr
+Load S36_Dig
+Add ONE
+Store S36_Dig
+Jump S36_T
+S36_TPrint,
+Load S36_Dig
+Skipcond 400
+Jump S36_TPaint
+Load S36_Started
+Skipcond 400
+Jump S36_TPaint
+Jump S36_Units
+S36_TPaint,
+Load S36_FontPtr
+Store PaintCharCharacter
+Load S36_DispPtr
+Store PaintCharDisplay
+JnS SubPaintChar
+Load S36_DispPtr
+Add S36_Step
+Store S36_DispPtr
+Load ONE
+Store S36_Started
+
+/ --- Units digit (always paint, S36_Rem is now the units digit) ---
+S36_Units,
+Load DigitFontAddr
+Store S36_FontPtr
+Load S36_Rem           / remaining value IS the units digit
+Store S36_Dig
+S36_U,
+Load S36_Dig
+Skipcond 800           / if dig > 0, skip exit and advance font pointer
+Jump S36_UPaint
+Load S36_FontPtr
+Add NEXTDIGIT
+Store S36_FontPtr
+Load S36_Dig
+Subt ONE
+Store S36_Dig
+Jump S36_U
+S36_UPaint,
+Load S36_FontPtr
+Store PaintCharCharacter
+Load S36_DispPtr
+Store PaintCharDisplay
+JnS SubPaintChar
+
+JumpI SubPrintCalResultToDisplay
+
+/ Local variables for Task 3.6
+S36_Rem,      HEX 0
+S36_Started,  HEX 0
+S36_DispPtr,  HEX 0
+S36_FontPtr,  HEX 0
+S36_Dig,      HEX 0
+S36_DispStart, HEX 0F00  / top-left of display
+S36_Step,     DEC 3      / pixels to advance per character (char width)
+S36_100,      DEC 100
+S36_10,       DEC 10
+S36_MinusOff, DEC 150    / offset to '-' in digit font (index 10 x 15)
 
 ///
 /// You may define your constants here
