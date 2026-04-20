@@ -155,29 +155,29 @@ S31_4N,   HEX 0
 ///
 SubCal, HEX 0
 
-/ Is it '+' ?
+/ Addition
 Load Operator
 Subt CharPlus
 Skipcond 400
-Jump S32_ChkMinus
+Jump S32_Sub
 Load Operand1
 Add Operand2
 Store CalResult
 Jump S32_Done
 
-/ Is it '-' ?
-S32_ChkMinus,
+/ Subtraction
+S32_Sub,
 Load Operator
 Subt CharMinus
 Skipcond 400
-Jump S32_ChkMul
+Jump S32_Mul
 Load Operand1
 Subt Operand2
 Store CalResult
 Jump S32_Done
 
-/ Is it '*' ? Use repeated addition (loop Operand2 times, add Operand1 each time)
-S32_ChkMul,
+/ Multiplication - add Operand1 to CalResult, Operand2 times
+S32_Mul,
 Load Operator
 Subt CharMul
 Skipcond 400
@@ -186,41 +186,36 @@ Load ZERO
 Store CalResult
 Load Operand2
 Store S32_Count
-
 S32_MulLoop,
-    Load S32_Count
-    Skipcond 400          / skip next if count == 0 (finished)
-    Jump S32_MulAdd
-    Jump S32_Done
-S32_MulAdd,
-    Load CalResult
-    Add Operand1
-    Store CalResult
-    Load S32_Count
-    Subt ONE
-    Store S32_Count
-    Jump S32_MulLoop
+Load S32_Count
+Skipcond 800        / if count > 0, skip the exit jump and keep looping
+Jump S32_Done
+Load CalResult
+Add Operand1
+Store CalResult
+Load S32_Count
+Subt ONE
+Store S32_Count
+Jump S32_MulLoop
 
-/ Is it '/' ? Use repeated subtraction
+/ Division - count how many times Operand2 fits into Operand1
 S32_Div,
 Load ZERO
 Store CalResult
 Load Operand1
 Store S32_Remain
-
 S32_DivLoop,
-    Load S32_Remain
-    Subt Operand2         / AC = remaining - divisor
-    Skipcond 000          / skip next if AC < 0 (remaining < divisor, stop)
-    Jump S32_DivCont
-    Jump S32_Done
-
-S32_DivCont,
-    Store S32_Remain      / AC already holds remaining - Operand2, save it
-    Load CalResult
-    Add ONE
-    Store CalResult
-    Jump S32_DivLoop
+Load S32_Remain
+Subt Operand2
+Skipcond 000        / if remaining < divisor (negative), skip to done
+Jump S32_DivNext
+Jump S32_Done
+S32_DivNext,
+Store S32_Remain    / AC already holds remaining - Operand2
+Load CalResult
+Add ONE
+Store CalResult
+Jump S32_DivLoop
 
 S32_Done,
 JumpI SubCal
