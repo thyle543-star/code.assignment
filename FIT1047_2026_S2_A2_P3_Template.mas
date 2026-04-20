@@ -46,10 +46,109 @@ Halt
 ///
 SubInputAndExtractOperandsAndOperator, HEX 0
 
-/ The logic
+/ Initialize both operands to 0
+Load ZERO
+Store Operand1
+Store Operand2
 
+/ === Read First Operand ===
+/ Read digits until we hit an operator (+, -, *, /)
+S31_ReadOp1,
+    InpU                  / read one Unicode character
+    Store S31_Char        / save the character
+
+    / Check if character is '+' (Unicode 43)
+    Subt CharPlus
+    Skipcond 400          / skip next if AC == 0 (it is '+')
+    Jump S31_ChkMinus
+    Load CharPlus
+    Store Operator
+    Jump S31_ReadOp2      / operator found, go read second operand
+
+S31_ChkMinus,
+    Load S31_Char
+    Subt CharMinus        / check for '-' (Unicode 45)
+    Skipcond 400
+    Jump S31_ChkMul
+    Load CharMinus
+    Store Operator
+    Jump S31_ReadOp2
+
+S31_ChkMul,
+    Load S31_Char
+    Subt CharMul          / check for '*' (Unicode 42)
+    Skipcond 400
+    Jump S31_ChkDiv
+    Load CharMul
+    Store Operator
+    Jump S31_ReadOp2
+
+S31_ChkDiv,
+    Load S31_Char
+    Subt CharDiv          / check for '/' (Unicode 47)
+    Skipcond 400
+    Jump S31_Dig1         / not an operator, must be a digit
+    Load CharDiv
+    Store Operator
+    Jump S31_ReadOp2
+
+/ It is a digit - add it into Operand1
+/ Operand1 = Operand1 * 10 + (char - '0')
+S31_Dig1,
+    Load Operand1
+    Store S31_N           / save n
+    Add S31_N             / AC = 2n
+    Store S31_2N
+    Add S31_2N            / AC = 4n
+    Store S31_4N
+    Add S31_4N            / AC = 8n
+    Add S31_2N            / AC = 10n
+    Store Operand1
+
+    Load S31_Char
+    Subt CharZero         / convert Unicode digit to numeric value (0-9)
+    Add Operand1
+    Store Operand1
+    Jump S31_ReadOp1      / read next character
+
+/ === Read Second Operand ===
+/ Read digits until we hit '='
+S31_ReadOp2,
+    InpU
+    Store S31_Char
+
+    / Check if character is '=' (Unicode 61) - stop reading
+    Subt CharEquals
+    Skipcond 400
+    Jump S31_Dig2
+    Jump S31_Done         / it is '=', we are done
+
+/ It is a digit - add it into Operand2
+S31_Dig2,
+    Load Operand2
+    Store S31_N
+    Add S31_N
+    Store S31_2N
+    Add S31_2N
+    Store S31_4N
+    Add S31_4N
+    Add S31_2N
+    Store Operand2
+
+    Load S31_Char
+    Subt CharZero
+    Add Operand2
+    Store Operand2
+    Jump S31_ReadOp2
+
+S31_Done,
 JumpI SubInputAndExtractOperandsAndOperator
-/ Add local variables of SubInputAndExtractOperandsAndOperator here (if any)
+
+/ Local variables for Task 3.1
+S31_Char, HEX 0
+S31_N,    HEX 0
+S31_2N,   HEX 0
+S31_4N,   HEX 0
 
 ///
 /// Implement your subroutine SubCal here. (Task 3.2)
@@ -108,6 +207,20 @@ JumpI SubPrintCalResultToDisplay
 /// You may define your constants here
 ///
 ZERO, DEC 0
+
+/ Global variables shared between subroutines
+Operand1,  DEC 0        / first operand value
+Operand2,  DEC 0        / second operand value
+Operator,  DEC 0        / operator character code (+, -, *, /)
+CalResult, DEC 0        / result of the calculation
+
+/ Character constants (Unicode values)
+CharPlus,   DEC 43      / '+'
+CharMinus,  DEC 45      / '-'
+CharMul,    DEC 42      / '*'
+CharDiv,    DEC 47      / '/'
+CharEquals, DEC 61      / '='
+CharZero,   DEC 48      / '0'
 
 
 / Here are some data labels that are useful for testing the code.
