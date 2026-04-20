@@ -229,10 +229,122 @@ S32_Remain, HEX 0
 ///
 SubTextOutput, HEX 0
 
-/ The logic
+/ Print Operand1
+Load Operand1
+Store S33_Num
+JnS S33_PrintNum
+
+/ Print operator character
+Load Operator
+OutpU
+
+/ Print Operand2
+Load Operand2
+Store S33_Num
+JnS S33_PrintNum
+
+/ Print '='
+Load CharEquals
+OutpU
+
+/ Print CalResult - handle negative first
+Load CalResult
+Skipcond 000          / skip if negative
+Jump S33_ResOk
+Load CharMinus
+OutpU
+Load ZERO
+Subt CalResult        / negate for printing (do not overwrite CalResult)
+Store S33_Num
+Jump S33_DoPrint
+S33_ResOk,
+Load CalResult
+Store S33_Num
+S33_DoPrint,
+JnS S33_PrintNum
 
 JumpI SubTextOutput
-/ Add local variables of SubTextOutput here (if any)
+
+/ Helper: print the number in S33_Num (positive, up to 3 digits, no leading zeros)
+S33_PrintNum, HEX 0
+Load S33_Num
+Store S33_Rem
+Load ZERO
+Store S33_Started
+
+/ --- Hundreds digit ---
+Load ZERO
+Store S33_D
+S33_H,
+Load S33_Rem
+Subt S33_100
+Skipcond 000          / if < 0, stop subtracting
+Jump S33_HGo
+Jump S33_HDone
+S33_HGo,
+Store S33_Rem
+Load S33_D
+Add ONE
+Store S33_D
+Jump S33_H
+S33_HDone,
+Load S33_D
+Skipcond 400          / skip next if D == 0 (suppress leading zero)
+Jump S33_HPrint
+Jump S33_Tens
+S33_HPrint,
+Load S33_D
+Add CharZero
+OutpU
+Load ONE
+Store S33_Started
+
+/ --- Tens digit ---
+S33_Tens,
+Load ZERO
+Store S33_D
+S33_T,
+Load S33_Rem
+Subt S33_10
+Skipcond 000
+Jump S33_TGo
+Jump S33_TDone
+S33_TGo,
+Store S33_Rem
+Load S33_D
+Add ONE
+Store S33_D
+Jump S33_T
+S33_TDone,
+Load S33_D
+Skipcond 400          / skip next if D == 0
+Jump S33_TPrint
+Load S33_Started      / D is 0: only print if hundreds was already printed
+Skipcond 400          / skip next if not started yet
+Jump S33_TPrint
+Jump S33_Units
+S33_TPrint,
+Load S33_D
+Add CharZero
+OutpU
+Load ONE
+Store S33_Started
+
+/ --- Units digit (always print) ---
+S33_Units,
+Load S33_Rem
+Add CharZero
+OutpU
+
+JumpI S33_PrintNum
+
+/ Local variables for Task 3.3
+S33_Num,     HEX 0
+S33_Rem,     HEX 0
+S33_D,       HEX 0
+S33_Started, HEX 0
+S33_100,     DEC 100
+S33_10,      DEC 10
 
 ///
 /// Implement your subroutine SubClearDisplay here. (Task 3.4)
