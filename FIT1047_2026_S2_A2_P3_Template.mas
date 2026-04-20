@@ -1,0 +1,1165 @@
+/////////////////////////////////////////////////////////////////////////
+//// This is the template for FIT1047 S1 2026, Assignment 2 Part 3.  ////
+//// Please follow the assignment specification published on Moodle. ////
+//// You must use this template for your code.                       ////
+/////////////////////////////////////////////////////////////////////////
+
+/ This is the main program. You can un-comment the different parts
+/ to test your subroutines, depending on which parts of the assignment
+/ you attempt to complete.
+
+/ For each subroutine, you may add additional labels to fulfill the requirements of the input and output specifications.
+
+
+/ Calling the SubInputAndExtractOperandsAndOperator subroutine. (Task 3.1)
+JnS SubInputAndExtractOperandsAndOperator
+
+/ Calling the SubCal subroutine. (Task 3.2)
+JnS SubCal
+
+/ Calling the SubTextOutput subroutine. (Task 3.3)
+JnS SubTextOutput
+
+/ Calling the SubClearDisplay subroutine. (Task 3.4)
+JnS SubClearDisplay
+
+/ Calling the SubPaintChar subroutine. (Task 3.5)
+Load DigitFontAddr
+Add NEXTDIGIT 
+Store PaintCharCharacter 
+Load PIXELOFROW2COL2 
+Store PaintCharDisplay 
+JnS SubPaintChar 
+
+/ Calling the SubPrintCalResultToDisplay subroutine. (Task 3.6)
+JnS SubPrintCalResultToDisplay
+
+/ This is the end of the main program.
+Halt
+
+//////////////////////////////////////////////////////////////////
+/////// Add your subroutines below this comment.           ///////
+//////////////////////////////////////////////////////////////////
+
+///
+/// Implement your subroutine SubInputAndExtractOperandsAndOperator here. (Task 3.1)
+///
+SubInputAndExtractOperandsAndOperator, HEX 0
+
+/ The logic
+
+JumpI SubInputAndExtractOperandsAndOperator
+/ Add local variables of SubInputAndExtractOperandsAndOperator here (if any)
+
+///
+/// Implement your subroutine SubCal here. (Task 3.2)
+///
+SubCal, HEX 0
+
+/ The logic
+
+JumpI SubCal
+/ Add local variables of SubCal here (if any)
+
+///
+/// Implement your subroutine SubTextOutput here. (Task 3.3)
+///
+SubTextOutput, HEX 0
+
+/ The logic
+
+JumpI SubTextOutput
+/ Add local variables of SubTextOutput here (if any)
+
+///
+/// Implement your subroutine SubClearDisplay here. (Task 3.4)
+///
+SubClearDisplay, HEX 0
+
+/ The logic
+
+JumpI SubClearDisplay 
+/ Add local variables of SubClearDisplay here (if any)
+
+///
+/// Implement your subroutine SubPaintChar here. (Task 3.5)
+///
+/ Parameters of SubPaintChar
+PaintCharCharacter, HEX 0  
+PaintCharDisplay, HEX 0  
+SubPaintChar, HEX 0 
+
+/ The logic
+
+JumpI SubPaintChar 
+/ Add local variables of SubPaintChar here (if any)
+
+///
+/// Implement your subroutine SubPrintToGraphicDisplay here. (Task 3.6)
+///
+SubPrintCalResultToDisplay, HEX 0 
+
+/ The logic
+
+JumpI SubPrintCalResultToDisplay 
+/ Add local variables of SubPrintCalResultToDisplay here (if any)
+
+///
+/// You may define your constants here
+///
+ZERO, DEC 0
+
+
+/ Here are some data labels that are useful for testing the code.
+ONE, DEC 1
+PIXELOFROW2COL2, HEX 0F11 
+SIXTYFOUR, DEC 64
+NEXTDIGIT, DEC 15
+
+//////////////////////////////////////////////////////////////////
+/////// You ARE NOT ALLOWED to edit anything below this line./////
+/////// (e.g. You are not allowed to add any addition label //////
+///////  to the font data. )                               ///////
+/////// Modification to any part below this line will      ///////
+/////// result in significant marks deduction!             ///////
+///////                                                    ///////
+/////// The rest of the file contains data for testing     ///////
+/////// and the font data. You must not change anything    ///////
+/////// below.                                             ///////
+//////////////////////////////////////////////////////////////////
+
+/ This is the "font", the memory that stores character data for the display.
+/ The characters are stored in the order a-z.
+/ Each character is 4 pixels wide and 8 pixels high.
+/ The data for each character is stored row by row, with each pixel
+/ being represented as ONE word that is either FFFF (white) or 0000 (black).
+
+FontAddr, ADR FontStart
+FontStart, 	HEX FFFF  / Start of character A 
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character B
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX FFFF  / Start of character C
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character D
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character E
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character F
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX FFFF  / Start of character G
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character H
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX FFFF  / Start of character I
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX FFFF  / Start of character J
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character K
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character L
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character M
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character N
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX FFFF  / Start of character O
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character P
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX FFFF  / Start of character Q
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character R
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX FFFF  / Start of character S
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character T
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character U
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character V
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character W
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character X
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character Y
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			
+			HEX 0000  / Start of character Z
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX 0000
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+			HEX FFFF
+
+DigitFontAddr, ADR DigitFontStart
+DigitFontStart, HEX FFFF     / Start of character 0
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+			  HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF       / Start of character 1
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX 0          / Start of character 2
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX 0
+		      HEX 0          / Start of character 3
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX 0          / Start of character 4
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX 0          / Start of character 5
+		      HEX 0
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF       / Start of character 6
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0          / Start of character 7
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF       / Start of character 8
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF       / Start of character 9
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF       / Start of character '-'
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX 0
+		      HEX 0
+		      HEX 0
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+		      HEX FFFF
+
+/ The following label can be used to store a string to help achieve the tasks. 
+StringAddr, ADR InputString
+InputString, DEC 0
