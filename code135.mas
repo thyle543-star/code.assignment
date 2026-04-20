@@ -1,0 +1,1632 @@
+/////////////////////////////////////////////////////////////////////////
+//// This is the template for FIT1047 S1 2026, Assignment 2 Part 3.  ////
+//// Please follow the assignment specification published on Moodle. ////
+//// You must use this template for your code.                       ////
+/////////////////////////////////////////////////////////////////////////
+
+/ Calling the SubInputAndExtractOperandsAndOperator subroutine. (Task 3.1)
+JnS SubInputAndExtractOperandsAndOperator
+
+/ Calling the SubCal subroutine. (Task 3.2)
+JnS SubCal
+
+/ Calling the SubTextOutput subroutine. (Task 3.3)
+JnS SubTextOutput
+
+/ Calling the SubClearDisplay subroutine. (Task 3.4)
+JnS SubClearDisplay
+
+/ Calling the SubPaintChar subroutine. (Task 3.5)
+Load DigitFontAddr
+Add NEXTDIGIT
+Store PaintCharCharacter
+Load PIXELOFROW2COL2
+Store PaintCharDisplay
+JnS SubPaintChar
+
+/ Calling the SubPrintCalResultToDisplay subroutine. (Task 3.6)
+JnS SubPrintCalResultToDisplay
+
+Halt
+
+//////////////////////////////////////////////////////////////////
+/////// Add your subroutines below this comment.           ///////
+//////////////////////////////////////////////////////////////////
+
+///
+/// Task 3.1 - Read input string e.g. "12+34=?" and extract operands and operator
+///
+SubInputAndExtractOperandsAndOperator, HEX 0
+
+Load ZERO
+Store Operand1
+Store Operand2
+
+/ Read first operand digits until we hit an operator
+S31_ReadOp1
+InpU
+Store S31_Char
+
+/ Check '+'
+Subt CharPlus
+Skipcond 400
+Jump S31_ChkMinus
+Load CharPlus
+Store Operator
+Jump S31_ReadOp2
+
+S31_ChkMinus
+Load S31_Char
+Subt CharMinus
+Skipcond 400
+Jump S31_ChkMul
+Load CharMinus
+Store Operator
+Jump S31_ReadOp2
+
+S31_ChkMul
+Load S31_Char
+Subt CharMul
+Skipcond 400
+Jump S31_ChkDiv
+Load CharMul
+Store Operator
+Jump S31_ReadOp2
+
+S31_ChkDiv
+Load S31_Char
+Subt CharDiv
+Skipcond 400
+Jump S31_Dig1
+Load CharDiv
+Store Operator
+Jump S31_ReadOp2
+
+/ It is a digit: Operand1 = Operand1 * 10 + digit
+S31_Dig1
+Load Operand1
+Store S31_N
+Add S31_N
+Store S31_2N
+Add S31_2N
+Store S31_4N
+Add S31_4N
+Add S31_2N
+Store Operand1
+Load S31_Char
+Subt CharZero
+Add Operand1
+Store Operand1
+Jump S31_ReadOp1
+
+/ Read second operand digits until we hit '='
+S31_ReadOp2
+InpU
+Store S31_Char
+Subt CharEquals
+Skipcond 400
+Jump S31_Dig2
+InpU
+Jump S31_Done
+
+S31_Dig2
+Load Operand2
+Store S31_N
+Add S31_N
+Store S31_2N
+Add S31_2N
+Store S31_4N
+Add S31_4N
+Add S31_2N
+Store Operand2
+Load S31_Char
+Subt CharZero
+Add Operand2
+Store Operand2
+Jump S31_ReadOp2
+
+S31_Done
+JumpI SubInputAndExtractOperandsAndOperator
+
+S31_Char, HEX 0
+S31_N,    HEX 0
+S31_2N,   HEX 0
+S31_4N,   HEX 0
+
+///
+/// Task 3.2 - Perform the calculation
+///
+SubCal, HEX 0
+
+/ Addition
+Load Operator
+Subt CharPlus
+Skipcond 400
+Jump S32_Sub
+Load Operand1
+Add Operand2
+Store CalResult
+Jump S32_Done
+
+/ Subtraction
+S32_Sub
+Load Operator
+Subt CharMinus
+Skipcond 400
+Jump S32_Mul
+Load Operand1
+Subt Operand2
+Store CalResult
+Jump S32_Done
+
+/ Multiplication: CalResult = Operand1 * Operand2 by repeated addition
+S32_Mul
+Load Operator
+Subt CharMul
+Skipcond 400
+Jump S32_Div
+Load ZERO
+Store CalResult
+Load Operand2
+Store S32_Count
+S32_MulLoop
+Load S32_Count
+Skipcond 800
+Jump S32_Done
+Load CalResult
+Add Operand1
+Store CalResult
+Load S32_Count
+Subt ONE
+Store S32_Count
+Jump S32_MulLoop
+
+/ Division: CalResult = quotient, CalRemainder = remainder
+S32_Div
+Load ZERO
+Store CalResult
+Load Operand1
+Store S32_Remain
+S32_DivLoop
+Load S32_Remain
+Subt Operand2
+Skipcond 000
+Jump S32_DivNext
+Jump S32_DivEnd
+S32_DivNext
+Store S32_Remain
+Load CalResult
+Add ONE
+Store CalResult
+Jump S32_DivLoop
+S32_DivEnd
+Load S32_Remain
+Store CalRemainder
+
+S32_Done
+JumpI SubCal
+
+S32_Count,  HEX 0
+S32_Remain, HEX 0
+
+///
+/// Task 3.3 - Print result to text output
+/// For +, -, *: print the result on one line
+/// For /: print quotient on first line, remainder on second line
+///
+SubTextOutput, HEX 0
+
+Load Operator
+Subt CharDiv
+Skipcond 400
+Jump S33_Div
+
+/ Not division: handle negative sign then print result
+Load CalResult
+Skipcond 000
+Jump S33_Positive
+Load CharMinus
+OutpU
+Load ZERO
+Subt CalResult
+Store S33_Num
+Jump S33_Print
+S33_Positive
+Load CalResult
+Store S33_Num
+S33_Print
+JnS S33_PrintNum
+Jump S33_End
+
+/ Division: print quotient, newline, remainder
+S33_Div
+Load CalResult
+Store S33_Num
+JnS S33_PrintNum
+Load CharNewline
+OutpU
+Load CalRemainder
+Store S33_Num
+JnS S33_PrintNum
+
+S33_End
+JumpI SubTextOutput
+
+/ Helper subroutine: prints the positive number in S33_Num
+/ Handles 1 to 3 digit numbers, no leading zeros
+S33_PrintNum, HEX 0
+Load S33_Num
+Store S33_Rem
+Load ZERO
+Store S33_Started
+
+/ Hundreds
+Load ZERO
+Store S33_D
+S33_H
+Load S33_Rem
+Subt S33_100
+Skipcond 000
+Jump S33_HInc
+Jump S33_HDone
+S33_HInc
+Store S33_Rem
+Load S33_D
+Add ONE
+Store S33_D
+Jump S33_H
+S33_HDone
+Load S33_D
+Skipcond 400
+Jump S33_HPrint
+Jump S33_Tens
+S33_HPrint
+Load S33_D
+Add CharZero
+OutpU
+Load ONE
+Store S33_Started
+
+/ Tens
+S33_Tens
+Load ZERO
+Store S33_D
+S33_T
+Load S33_Rem
+Subt S33_10
+Skipcond 000
+Jump S33_TInc
+Jump S33_TDone
+S33_TInc
+Store S33_Rem
+Load S33_D
+Add ONE
+Store S33_D
+Jump S33_T
+S33_TDone
+Load S33_D
+Skipcond 400
+Jump S33_TPrint
+Load S33_Started
+Skipcond 400
+Jump S33_TPrint
+Jump S33_Units
+S33_TPrint
+Load S33_D
+Add CharZero
+OutpU
+Load ONE
+Store S33_Started
+
+/ Units always print
+S33_Units
+Load S33_Rem
+Add CharZero
+OutpU
+
+JumpI S33_PrintNum
+
+S33_Num,     HEX 0
+S33_Rem,     HEX 0
+S33_D,       HEX 0
+S33_Started, HEX 0
+S33_100,     DEC 100
+S33_10,      DEC 10
+
+///
+/// Task 3.4 - Clear the bitmap display to white
+///
+SubClearDisplay, HEX 0
+
+Load S34_Start
+Store S34_Ptr
+S34_Loop
+Load S34_End
+Subt S34_Ptr
+Skipcond 800
+Jump S34_Done
+Load S34_White
+StoreI S34_Ptr
+Load S34_Ptr
+Add ONE
+Store S34_Ptr
+Jump S34_Loop
+S34_Done
+JumpI SubClearDisplay
+
+S34_Ptr,   HEX 0
+S34_Start, HEX 0F00
+S34_End,   HEX 1000
+S34_White, HEX FFFF
+
+///
+/// Task 3.5 - Paint one character onto the display
+/// PaintCharCharacter = address of font data for the character
+/// PaintCharDisplay   = top-left pixel address on the display
+///
+PaintCharCharacter, HEX 0
+PaintCharDisplay,   HEX 0
+SubPaintChar, HEX 0
+
+Load PaintCharCharacter
+Store S35_FPtr
+Load PaintCharDisplay
+Store S35_DPtr
+Load ZERO
+Store S35_Count
+Store S35_Col
+
+S35_Loop
+Load S35_Total
+Subt S35_Count
+Skipcond 800
+Jump S35_Done
+LoadI S35_FPtr
+StoreI S35_DPtr
+Load S35_FPtr
+Add ONE
+Store S35_FPtr
+Load S35_DPtr
+Add ONE
+Store S35_DPtr
+Load S35_Col
+Add ONE
+Store S35_Col
+Subt S35_Wide
+Skipcond 400
+Jump S35_Next
+Load ZERO
+Store S35_Col
+Load S35_DPtr
+Add S35_Skip
+Store S35_DPtr
+S35_Next
+Load S35_Count
+Add ONE
+Store S35_Count
+Jump S35_Loop
+
+S35_Done
+JumpI SubPaintChar
+
+S35_FPtr,  HEX 0
+S35_DPtr,  HEX 0
+S35_Count, HEX 0
+S35_Col,   HEX 0
+S35_Total, DEC 15
+S35_Wide,  DEC 3
+S35_Skip,  DEC 13
+
+///
+/// Task 3.6 - Print CalResult onto the bitmap display
+///
+SubPrintCalResultToDisplay, HEX 0
+
+Load CalResult
+Store S36_Rem
+Load ZERO
+Store S36_Started
+Load S36_DispStart
+Store S36_DPtr
+
+/ Handle negative
+Load S36_Rem
+Skipcond 000
+Jump S36_Hunds
+Load DigitFontAddr
+Add S36_MinusOff
+Store PaintCharCharacter
+Load S36_DPtr
+Store PaintCharDisplay
+JnS SubPaintChar
+Load S36_DPtr
+Add S36_Step
+Store S36_DPtr
+Load ZERO
+Subt S36_Rem
+Store S36_Rem
+
+/ Hundreds digit
+S36_Hunds
+Load DigitFontAddr
+Store S36_FPtr
+Load ZERO
+Store S36_Dig
+S36_HL
+Load S36_Rem
+Subt S36_100
+Skipcond 000
+Jump S36_HInc
+Jump S36_HPrint
+S36_HInc
+Store S36_Rem
+Load S36_FPtr
+Add NEXTDIGIT
+Store S36_FPtr
+Load S36_Dig
+Add ONE
+Store S36_Dig
+Jump S36_HL
+S36_HPrint
+Load S36_Dig
+Skipcond 400
+Jump S36_HPaint
+Load S36_Started
+Skipcond 400
+Jump S36_HPaint
+Jump S36_Tens
+S36_HPaint
+Load S36_FPtr
+Store PaintCharCharacter
+Load S36_DPtr
+Store PaintCharDisplay
+JnS SubPaintChar
+Load S36_DPtr
+Add S36_Step
+Store S36_DPtr
+Load ONE
+Store S36_Started
+
+/ Tens digit
+S36_Tens
+Load DigitFontAddr
+Store S36_FPtr
+Load ZERO
+Store S36_Dig
+S36_TL
+Load S36_Rem
+Subt S36_10
+Skipcond 000
+Jump S36_TInc
+Jump S36_TPrint
+S36_TInc
+Store S36_Rem
+Load S36_FPtr
+Add NEXTDIGIT
+Store S36_FPtr
+Load S36_Dig
+Add ONE
+Store S36_Dig
+Jump S36_TL
+S36_TPrint
+Load S36_Dig
+Skipcond 400
+Jump S36_TPaint
+Load S36_Started
+Skipcond 400
+Jump S36_TPaint
+Jump S36_Units
+S36_TPaint
+Load S36_FPtr
+Store PaintCharCharacter
+Load S36_DPtr
+Store PaintCharDisplay
+JnS SubPaintChar
+Load S36_DPtr
+Add S36_Step
+Store S36_DPtr
+Load ONE
+Store S36_Started
+
+/ Units digit always paints
+S36_Units
+Load DigitFontAddr
+Store S36_FPtr
+Load S36_Rem
+Store S36_Dig
+S36_UL
+Load S36_Dig
+Skipcond 800
+Jump S36_UPaint
+Load S36_FPtr
+Add NEXTDIGIT
+Store S36_FPtr
+Load S36_Dig
+Subt ONE
+Store S36_Dig
+Jump S36_UL
+S36_UPaint
+Load S36_FPtr
+Store PaintCharCharacter
+Load S36_DPtr
+Store PaintCharDisplay
+JnS SubPaintChar
+
+JumpI SubPrintCalResultToDisplay
+
+S36_Rem,       HEX 0
+S36_Started,   HEX 0
+S36_DPtr,      HEX 0
+S36_FPtr,      HEX 0
+S36_Dig,       HEX 0
+S36_DispStart, HEX 0F00
+S36_Step,      DEC 3
+S36_100,       DEC 100
+S36_10,        DEC 10
+S36_MinusOff,  DEC 150
+
+///
+/// Global variables and constants
+///
+ZERO, DEC 0
+
+Operand1,     DEC 0
+Operand2,     DEC 0
+Operator,     DEC 0
+CalResult,    DEC 0
+CalRemainder, DEC 0
+
+CharPlus,    DEC 43
+CharMinus,   DEC 45
+CharMul,     DEC 42
+CharDiv,     DEC 47
+CharEquals,  DEC 61
+CharZero,    DEC 48
+CharNewline, DEC 10
+
+ONE,             DEC 1
+PIXELOFROW2COL2, HEX 0F11
+SIXTYFOUR,       DEC 64
+NEXTDIGIT,       DEC 15
+
+//////////////////////////////////////////////////////////////////
+/////// You ARE NOT ALLOWED to edit anything below this line./////
+/////// (e.g. You are not allowed to add any addition label //////
+///////  to the font data. )                               ///////
+/////// Modification to any part below this line will      ///////
+/////// result in significant marks deduction!             ///////
+///////                                                    ///////
+/////// The rest of the file contains data for testing     ///////
+/////// and the font data. You must not change anything    ///////
+/////// below.                                             ///////
+//////////////////////////////////////////////////////////////////
+
+FontAddr, ADR FontStart
+FontStart, 	HEX FFFF  / Start of character A 
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character B
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX FFFF  / Start of character C
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character D
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character E
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character F
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX FFFF  / Start of character G
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character H
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX FFFF  / Start of character I
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX FFFF  / Start of character J
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character K
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character L
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character M
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character N
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX FFFF  / Start of character O
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character P
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX FFFF  / Start of character Q
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character R
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX FFFF  / Start of character S
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character T
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character U
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character V
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character W
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character X
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character Y
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+HEX 0000  / Start of character Z
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0000
+HEX 0000
+HEX 0000
+HEX 0000
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+DigitFontAddr, ADR DigitFontStart
+DigitFontStart, HEX FFFF     / Start of character 0
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX 0
+HEX FFFF
+HEX 0
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF       / Start of character 1
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX 0          / Start of character 2
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX 0
+HEX 0
+HEX 0          / Start of character 3
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX 0
+HEX 0
+HEX FFFF
+HEX 0          / Start of character 4
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX 0
+HEX 0
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX 0          / Start of character 5
+HEX 0
+HEX 0
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX 0
+HEX 0
+HEX FFFF
+HEX FFFF       / Start of character 6
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0          / Start of character 7
+HEX 0
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX FFFF       / Start of character 8
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF       / Start of character 9
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX 0
+HEX FFFF
+HEX FFFF       / Start of character '-'
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX 0
+HEX 0
+HEX 0
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+HEX FFFF
+
+/ The following label can be used to store a string to help achieve the tasks. 
+StringAddr, ADR InputString
+InputString, DEC 0
