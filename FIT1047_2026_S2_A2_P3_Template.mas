@@ -155,10 +155,79 @@ S31_4N,   HEX 0
 ///
 SubCal, HEX 0
 
-/ The logic
+/ Is it '+' ?
+Load Operator
+Subt CharPlus
+Skipcond 400
+Jump S32_ChkMinus
+Load Operand1
+Add Operand2
+Store CalResult
+Jump S32_Done
 
+/ Is it '-' ?
+S32_ChkMinus,
+Load Operator
+Subt CharMinus
+Skipcond 400
+Jump S32_ChkMul
+Load Operand1
+Subt Operand2
+Store CalResult
+Jump S32_Done
+
+/ Is it '*' ? Use repeated addition (loop Operand2 times, add Operand1 each time)
+S32_ChkMul,
+Load Operator
+Subt CharMul
+Skipcond 400
+Jump S32_Div
+Load ZERO
+Store CalResult
+Load Operand2
+Store S32_Count
+
+S32_MulLoop,
+    Load S32_Count
+    Skipcond 400          / skip next if count == 0 (finished)
+    Jump S32_MulAdd
+    Jump S32_Done
+S32_MulAdd,
+    Load CalResult
+    Add Operand1
+    Store CalResult
+    Load S32_Count
+    Subt ONE
+    Store S32_Count
+    Jump S32_MulLoop
+
+/ Is it '/' ? Use repeated subtraction
+S32_Div,
+Load ZERO
+Store CalResult
+Load Operand1
+Store S32_Remain
+
+S32_DivLoop,
+    Load S32_Remain
+    Subt Operand2         / AC = remaining - divisor
+    Skipcond 000          / skip next if AC < 0 (remaining < divisor, stop)
+    Jump S32_DivCont
+    Jump S32_Done
+
+S32_DivCont,
+    Store S32_Remain      / AC already holds remaining - Operand2, save it
+    Load CalResult
+    Add ONE
+    Store CalResult
+    Jump S32_DivLoop
+
+S32_Done,
 JumpI SubCal
-/ Add local variables of SubCal here (if any)
+
+/ Local variables for Task 3.2
+S32_Count,  HEX 0
+S32_Remain, HEX 0
 
 ///
 /// Implement your subroutine SubTextOutput here. (Task 3.3)
